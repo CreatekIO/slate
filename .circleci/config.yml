@@ -40,7 +40,10 @@ jobs:
           name: Perserve config files
           command: |
             cd build
-            git checkout CNAME
+            if [ -f CNAME ]; then
+              echo 'Perserving CNAME'
+              git checkout CNAME
+            fi
             git checkout .circleci/config.yml
 
       - run:
@@ -52,19 +55,16 @@ jobs:
               echo 'commiting new doc'
               git add .
               git commit -m "CircleCI build ($CIRCLE_SHA1): $LAST_GIT_MESSAGE"
-            else
-              echo 'commiting new doc'
             fi
 
       - run:
           name: Git push
           command: |
             cd build
-            if [ $(git branch -v | grep --quiet -e ahead) ]; then
+            if git branch -v | grep -q -e ahead; then
               echo 'pushing to gh-pages'
               git push
-              else
-            echo
-              else'nothing to push'
+            else
+              echo 'nothing to push'
             fi
 
